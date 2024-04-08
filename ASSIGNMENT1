@@ -1,0 +1,53 @@
+def dictionary1input(a):
+    b={}
+    print('Nhập số items Từ điển thứ nhất là: ')
+    n=int(input('n= '))
+    for i in range(0,n):
+        x=input('Nhập mã hàng là: ')
+        y=int(input('Nhập số lượng là: '))
+        b[x]=y
+    return b
+def dictionary2input(b):
+    c={}
+    print('Nhập số items Từ điển thứ Hai là: ')
+    m=int(input('m= '))
+    for i in range(0,m):
+        t=input('Nhập mã nhà cung cấp là: ')
+        z=input('Nhập tên nhà cung cấp là: ')
+        c[t]=z
+    return c
+a1=dict()
+a2=dict()
+a1=dictionary1input(a1)
+print('Từ điển thứ nhất là:')
+print(a1)
+a2=dictionary2input(a2)
+print('Từ điển thứ hai là:')
+print(a2)
+if 'H001' in a1:
+    a1['H001']=200
+else:
+    x=input('Nhập mã hàng là H001 vào!!')
+    y=int(input('Nhập số lượng là 200 vào !!'))
+    while x!='H001' or y!=200:
+        print('Hãy nhập đúng !!!!!!')
+        x=input('Nhập mã hàng là H001 vào!!')                                                                                                                                                                  
+        y=int(input('Nhập số lượng là 200 vào !!'))
+    a1[x]=y
+print('Từ điển thứ Nhất sau khi Sửa or Thêm của Mã Hàng:H001 là ')
+print(a1)
+def dictremove(c):
+    r=dict()
+    for i in c.keys():
+        if c[i]!=0:
+            r[i]=c[i]
+    return r
+a1=dictremove(a1)
+print('Từ điển thứ Nhất sau khi xóa hết các Mã hang có số lượng bằng 0 là: ')
+print(a1)
+b1=list(a1.keys())
+b2=list(a1.values())
+print('3 Phần tử đầu tiên của List thứ Nhất <Nếu List có đủ từ 3 phần tử trở lên> là ')
+print(b1[0:3])
+print('Ba phần tử cuối cùng của List thứ Hai <Nếu List có đủ từ 3 phần tử trở lên> là ')
+print(b2[-3:])
