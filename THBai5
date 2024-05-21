@@ -1,0 +1,116 @@
+#Bai5.1
+import numpy as np
+#1
+n=int(input('n= '))
+a=np.random.rand(n)
+print('a= ',a)
+print('so chieu cua a',a.ndim)
+print('kick thuoc moi chieu',a.shape)
+print('do dai a', len(a))
+print('kich thuoc moi phan tu',a.itemsize)
+print('kieu cua cac phan tu',a.dtype)
+#2
+b=np.linspace(1,n,100)
+print('b= ',b)
+print('so chieu cua b',b.ndim)
+print('kick thuoc moi chieu',b.shape)
+print('do dai b', len(b))
+print('kich thuoc moi phan tu',b.itemsize)
+print('kieu cua cac phan tu',b.dtype)
+#3
+c=np.arange(2,201,2)
+print('c',c)
+#4
+d=np.ones(100)
+print('d',d)
+#5
+e=np.zeros(100)
+print('e',e)
+#6
+h=np.random.randn(100)
+print('h',h)
+#7
+m=int(input('m= '))
+k=np.ones((n,m))
+print('k',k)
+#8
+p=np.eye(n)
+print('p',p)
+#9
+q=np.diag(a)
+print('q',q)
+#Bai5.2
+import numpy as np
+def vecinput(n,name):
+    print('Nhap mang',name)
+    a=np.zeros(n)
+    for i in range(n):
+        a[i]=float(input('{}[{}]: '.format(name,i)))
+    return a
+n=int(input('n= '))
+a=vecinput(n,'a')
+b=vecinput(n,'b')
+print('b=',b)
+print('a=',a)
+c=a+b
+print('c=',c)
+d=a-b
+e=a*b
+f=a/b
+print('d=',d)
+print('e=',e)
+print('f=',f)
+print('Tong=',c.sum())
+print('Max=',c.max())
+print('Min=',c.min())
+k=c[::2]
+print('k=',k)
+print('Tong k= ',k.sum())
+try:
+    t=int(input('t= '))
+    if n%t!=0: raise ValueError
+    o=c.reshape(t,n//t)
+except:
+    print(ValueError,'Khong the reshape')
+
+
+#Bai5.3
+import numpy as np
+def vecinput(n,name):
+    print('Nhap mang',name)
+    a=np.zeros(n)
+    for i in range(n):
+        a[i]=float(input('{}[{}]: '.format(name,i)))
+    return a
+def tomatrix(a,n):
+    try:
+        t = int(input('t= '))
+        if n % t != 0: raise ValueError
+        o = a.reshape(t, n // t)
+        return o
+    except:
+        print(ValueError, 'Khong the reshape')
+        return
+n=int(input('n= '))
+a=vecinput(n,'a')
+a=tomatrix(a,n)
+if len(a)!=0:
+    print('a',a)
+    if len(a[0])>1:
+        b=a[:,0]
+        c=a[:,1]
+        b=np.reshape(b,-1)
+        c=np.reshape(c,-1)
+        print('b: ',b)
+        print('c: ',c)
+        d=np.concatenate((b,c))
+        print('d: ',d)
+        k=np.where(d>1)
+        print('k',k)
+    d=np.sort(a,kind='heapsort')
+    print('d sau sap',d)
+t=int(input('Nhap gia tri: '))
+vt=np.searchsorted(d,t)
+print('Vt can chen',vt)
+d=np.insert(d,vt,t)
+print('Sau chen ',d)
