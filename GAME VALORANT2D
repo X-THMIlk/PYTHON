@@ -1,0 +1,233 @@
+import pygame
+import random
+import time
+
+# Khởi tạo pygame
+pygame.init()
+
+# Thiết lập màn hình
+WIDTH, HEIGHT = 800, 600
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("2D Valorant")
+
+# Màu sắc
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+RED = (255, 0, 0)
+BLUE = (0, 0, 255)
+GREEN = (0, 255, 0)
+YELLOW = (255, 255, 0)
+
+# Người chơi
+player_size = 20
+player_x = WIDTH // 2
+player_y = HEIGHT - player_size - 10
+player_speed = 10
+bullets = []
+missiles = []
+explosions = []
+missile_count = 0
+spread_shot = False
+
+def draw_player():
+    pygame.draw.rect(screen, BLUE, (player_x, player_y, player_size, player_size))
+
+
+# Đạn
+bullet_speed = 15
+missile_speed = 5
+missile_radius = 100
+enemy_bullets = []
+enemy_bullet_speed = 10
+last_enemy_shot_time = time.time()
+
+
+def draw_bullets():
+    for bullet in bullets:
+        pygame.draw.rect(screen, RED, (bullet[0], bullet[1], 5, 10))
+    for missile in missiles:
+        pygame.draw.circle(screen, YELLOW, (missile[0], missile[1]), 10)
+    for enemy_bullet in enemy_bullets:
+        pygame.draw.rect(screen, BLACK, (enemy_bullet[0], enemy_bullet[1], 5, 10))
+
+
+def move_bullets():
+    global bullets, enemies, score
+    for bullet in bullets:
+        bullet[1] -= bullet_speed
+    bullets = [bullet for bullet in bullets if bullet[1] > 0]
+    for bullet in bullets[:]:
+        bullet_rect = pygame.Rect(bullet[0], bullet[1], 5, 10)
+        for enemy in enemies[:]:
+            enemy_rect = pygame.Rect(enemy[0], enemy[1], enemy_size, enemy_size)
+            if bullet_rect.colliderect(enemy_rect):
+                enemies.remove(enemy)
+                bullets.remove(bullet)
+                score += 10
+                break
+
+
+def move_missiles():
+    global missiles, enemies, score, explosions
+    for missile in missiles[:]:
+        missile[1] -= missile_speed
+        if missile[1] < HEIGHT // 2:
+            explosions.append((missile[0], missile[1]))
+            missiles.remove(missile)
+
+    for explosion in explosions[:]:
+        x, y = explosion
+        for enemy in enemies[:]:
+            if abs(enemy[0] - x) < missile_radius and abs(enemy[1] - y) < missile_radius:
+                enemies.remove(enemy)
+                score += 20
+        explosions.remove(explosion)
+
+
+# Địch
+enemy_size = 35
+enemies = [[random.randint(0, WIDTH - enemy_size), random.randint(50, 200)]]
+enemy_speed = 5
+
+
+def draw_enemies():
+    for enemy in enemies:
+        pygame.draw.rect(screen, BLACK, (enemy[0], enemy[1], enemy_size, enemy_size))
+
+
+def move_enemies():
+    global enemies, game_over
+    for enemy in enemies:
+        enemy[1] += enemy_speed
+        if enemy[1] + enemy_size >= player_y and enemy[0] < player_x + player_size and enemy[0] + enemy_size > player_x:
+            game_over = True
+    enemies = [enemy for enemy in enemies if enemy[1] < HEIGHT]
+    if random.random() < 0.02:
+        enemies.append([random.randint(0, WIDTH - enemy_size), random.randint(50, 200)])
+
+
+def enemy_shoot():
+    global last_enemy_shot_time
+    if time.time() - last_enemy_shot_time > 10:
+        for enemy in enemies:
+            enemy_bullets.append([enemy[0] + enemy_size // 2, enemy[1] + enemy_size])
+        last_enemy_shot_time = time.time()
+
+
+def move_enemy_bullets():
+    global enemy_bullets, game_over
+    for bullet in enemy_bullets:
+        bullet[1] += enemy_bullet_speed
+        if bullet[1] >= player_y and player_x < bullet[0] < player_x + player_size:
+            game_over = True
+    enemy_bullets = [bullet for bullet in enemy_bullets if bullet[1] < HEIGHT]
+
+
+# Quà
+powerups = []
+powerup_size = 25
+has_missile = False
+
+
+def draw_powerups():
+    for powerup in powerups:
+        pygame.draw.rect(screen, GREEN, (powerup[0], powerup[1], powerup_size, powerup_size))
+
+
+def move_powerups():
+    global powerups, has_missile, missile_count
+    for powerup in powerups[:]:
+        powerup[1] += 3
+        if powerup[1] > HEIGHT:
+            powerups.remove(powerup)
+        elif abs(powerup[0] - player_x) < player_size and abs(powerup[1] - player_y) < player_size:
+            powerups.remove(powerup)
+            has_missile = True
+            missile_count += 1
+    if random.random() < 0.01:
+        powerups.append([random.randint(0, WIDTH - powerup_size), 0])
+
+
+def draw_missile_count():
+    missile_text = font.render(f"Missiles: {missile_count}", True, BLACK)
+    screen.blit(missile_text, (10, 40))
+
+
+# Điểm số
+score = 0
+font = pygame.font.SysFont(None, 35)
+
+
+def draw_score():
+    score_text = font.render(f"Score: {score}", True, BLACK)
+    screen.blit(score_text, (10, 10))
+
+
+# Reset game
+def reset_game():
+    global player_x, bullets, missiles, enemies, powerups, score, game_over, has_missile, explosions, missile_count, enemy_bullets
+    player_x = WIDTH // 2
+    bullets = []
+    missiles = []
+    enemies = [[random.randint(0, WIDTH - enemy_size), random.randint(50, 200)]]
+    powerups = []
+    explosions = []
+    score = 0
+    game_over = False
+    has_missile = False
+    missile_count = 0
+    enemy_bullets = []
+    spread_shot = False
+
+
+# Vòng lặp game
+clock = pygame.time.Clock()
+game_over = False
+running = True
+while running:
+    screen.fill(WHITE)
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE and not game_over:
+                bullets.append([player_x + player_size // 2, player_y])
+                if spread_shot:
+                    bullets.append([player_x + player_size // 2 - 10, player_y])
+                    bullets.append([player_x + player_size // 2, player_y])
+                    bullets.append([player_x + player_size // 2 + 10, player_y])
+                else:
+                    bullets.append([player_x + player_size // 2, player_y])
+            if event.key == pygame.K_r and game_over:
+                reset_game()
+            if event.key == pygame.K_t and has_missile and missile_count > 0:
+                missiles.append([player_x + player_size // 2, player_y])
+                missile_count -= 1
+            if event.key == pygame.K_u:
+                spread_shot = not spread_shot
+
+    if not game_over:
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_LEFT] and player_x > 0:
+            player_x -= player_speed
+        if keys[pygame.K_RIGHT] and player_x < WIDTH - player_size:
+            player_x += player_speed
+        move_bullets()
+        move_missiles()
+        move_enemies()
+        move_powerups()
+        move_enemy_bullets()
+        enemy_shoot()
+        draw_player()
+        draw_bullets()
+        draw_enemies()
+        draw_powerups()
+        draw_score()
+        draw_missile_count()
+    else:
+        game_over_text = font.render("Game Over! Press R to Restart", True, RED)
+        screen.blit(game_over_text, (WIDTH // 2 - 150, HEIGHT // 2))
+    pygame.display.flip()
+    clock.tick(30)
+pygame.quit()
